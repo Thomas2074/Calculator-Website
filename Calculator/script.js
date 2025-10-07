@@ -2,6 +2,7 @@ class Calculator {
     constructor(previousOperandTextElement, currentOperandTextElement) {
         this.previousOperandTextElement = previousOperandTextElement
         this.currentOperandTextElement = currentOperandTextElement
+        this.readyToReset = false
         this.clear()
     }
 
@@ -9,6 +10,7 @@ class Calculator {
         this.currentOperand = ''
         this.previousOperand = ''
         this.operation = undefined
+        this.readyToReset = false
     }
 
     delete() {
@@ -16,6 +18,10 @@ class Calculator {
     }
 
     appendNumber(number) {
+        if (this.readyToReset && this.operation == null) {
+            this.currentOperand = ''
+            this.readyToReset = false
+        }
         if (number === '.' && this.currentOperand.includes('.')) return
         this.currentOperand = this.currentOperand.toString() + number.toString()
     }
@@ -28,6 +34,7 @@ class Calculator {
         this.operation = operation
         this.previousOperand = this.currentOperand
         this.currentOperand = ''
+        this.readyToReset = false;
     }
 
     compute() {
@@ -35,6 +42,13 @@ class Calculator {
         const prev = parseFloat(this.previousOperand)
         const current = parseFloat(this.currentOperand)
         if (isNaN(prev) || isNaN(current)) return
+        if (this.operation === '÷' && current === 0) {
+            this.currentOperand = "Error"
+            this.operation = undefined
+            this.previousOperand = ''
+            this.readyToReset = true
+            return
+        }
         switch (this.operation) {
             case '+':
                 computation = prev + current
@@ -54,17 +68,21 @@ class Calculator {
         this.currentOperand = computation
         this.operation = undefined
         this.previousOperand = ''
+        this.readyToReset = true
     }
 
     getDisplayNumber(number) {
         const stringNumber = number.toString()
+        if (stringNumber === 'Error') return 'Error'
         const integerDigits = parseFloat(stringNumber.split('.')[0])
         const decimalDigits = stringNumber.split('.')[1]
         let integerDisplay
         if (isNaN(integerDigits)) {
             integerDisplay = ''
         } else {
-            integerDisplay = integerDigits.toLocaleString('en', {maximumFractionDigits: 0 })
+            integerDisplay = integerDigits.toLocaleString('en', {
+                maximumFractionDigits: 0
+            })
         }
         if (decimalDigits != null) {
             return `${integerDisplay}.${decimalDigits}`
@@ -83,14 +101,13 @@ class Calculator {
     }
 }
 
-const numberButtons = document.querySelectorAll('[data-number')
-const operationButtons = document.querySelectorAll('[data-operation')
-const equalsButton = document.querySelector('[data-equals')
-const deleteButton = document.querySelector('[data-delete')
-const allClearButton = document.querySelector('[data-all-clear')
-const previousOperandTextElement = document.querySelector('[data-previous-operand')
-const currentOperandTextElement = document.querySelector('[data-current-operand')
-
+const numberButtons = document.querySelectorAll('[data-number]')
+const operationButtons = document.querySelectorAll('[data-operation]')
+const equalsButton = document.querySelector('[data-equals]')
+const deleteButton = document.querySelector('[data-delete]')
+const allClearButton = document.querySelector('[data-all-clear]')
+const previousOperandTextElement = document.querySelector('[data-previous-operand]')
+const currentOperandTextElement = document.querySelector('[data-current-operand]')
 const calculator = new Calculator(previousOperandTextElement, currentOperandTextElement)
 
 numberButtons.forEach(button => {
@@ -99,25 +116,98 @@ numberButtons.forEach(button => {
         calculator.updateDisplay()
     })
 })
-
 operationButtons.forEach(button => {
     button.addEventListener('click', () => {
         calculator.chooseOperation(button.innerText)
         calculator.updateDisplay()
     })
 })
-
 equalsButton.addEventListener('click', button => {
-    calculator.computer()
+    calculator.compute()
     calculator.updateDisplay()
 })
-
 allClearButton.addEventListener('click', button => {
     calculator.clear()
     calculator.updateDisplay()
 })
-
 deleteButton.addEventListener('click', button => {
     calculator.delete()
     calculator.updateDisplay()
 })
+window.addEventListener('keydown', handleKeyboardInput)
+
+function handleKeyboardInput(e) {
+    let key = e.key
+    if (key >= 0 && key <= 9) {
+        calculator.appendNumber(key)
+        calculator.updateDisplay()
+    }
+    if (key === '.') {
+        calculator.appendNumber(key)
+        calculator.updateDisplay()
+    }
+    if (key === '=' || key === 'Enter') {
+        calculator.compute()
+        calculator.updateDisplay()
+    }
+    if (key === 'Backspace') {
+        calculator.delete()
+        calculator.updateDisplay()
+    }
+    if (key === 'Escape') {
+        calculator.clear()
+        calculator.updateDisplay()
+    }
+    if (key === '+' || key === '-' || key === '*') {
+        calculator.chooseOperation(key)
+        calculator.updateDisplay()
+    }
+    if (key === '/') {
+        e.preventDefault()
+        calculator.chooseOperation('÷')
+        calculator.updateDisplay()
+    }
+    const pressedButton = findButton(key)
+    if (pressedButton) {
+        pressedButton.classList.add('active')
+        setTimeout(() => {
+            pressedButton.classList.remove('active')
+        }, 100)
+    }
+}
+
+function findButton(key) {
+    if (key === 'Enter') key = '='
+    if (key === '/') key = '÷'
+    if (key === 'Escape') key = 'AC'
+    if (key === 'Backspace') key = 'DEL'
+    return Array.from(document.querySelectorAll('button')).find(button => button.innerText === key)
+}
+
+// --- NEW: Theme Toggling Logic ---
+const themeToggle = document.getElementById('theme-toggle');
+const body = document.body;
+
+// Function to apply the saved theme
+function applyTheme(theme) {
+    if (theme === 'dark') {
+        body.classList.add('dark');
+        themeToggle.checked = true;
+    } else {
+        body.classList.remove('dark');
+        themeToggle.checked = false;
+    }
+}
+
+// Event listener for the toggle switch
+themeToggle.addEventListener('change', () => {
+    const newTheme = themeToggle.checked ? 'dark' : 'light';
+    localStorage.setItem('calculator-theme', newTheme);
+    applyTheme(newTheme);
+});
+
+// Check for a saved theme in localStorage when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('calculator-theme') || 'light';
+    applyTheme(savedTheme);
+});
