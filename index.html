@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Scientific Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.7.0/math.min.js"></script>
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div class="main-container">
+        <div class="calculator-wrapper">
+            <div class="header">
+                <h1>Calculator</h1>
+                <div class="theme-switch-wrapper">
+                    <label class="theme-switch" for="theme-toggle">
+                        <input type="checkbox" id="theme-toggle" />
+                        <div class="slider round"></div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="calculator-grid">
+                <div class="output">
+                    <div data-previous-operand class="previous-operand"></div>
+                    <div data-current-operand class="current-operand"></div>
+                </div>
+                
+                <button data-operation class="sci-function">√</button>
+                <button data-operation class="sci-function">^</button>
+                <button data-number class="sci-function">(</button>
+                <button data-number class="sci-function">)</button>
+                <button data-all-clear class="function">AC</button>
+                <button data-delete class="function span-two">DEL</button>
+                
+                <button data-operation class="sci-function">sin</button>
+                <button data-constant="PI" class="sci-function">π</button>
+                <button data-number>7</button>
+                <button data-number>8</button>
+                <button data-number>9</button>
+                <button data-operation class="operator">÷</button>
+                <button data-operation class="operator">*</button>
+
+                <button data-operation class="sci-function">cos</button>
+                <button data-operation class="sci-function">log</button>
+                <button data-number>4</button>
+                <button data-number>5</button>
+                <button data-number>6</button>
+                <button data-operation class="operator">+</button>
+                <button data-operation class="operator">-</button>
+
+                <button data-operation class="sci-function">tan</button>
+                <button data-operation class="sci-function">ln</button>
+                <button data-number>1</button>
+                <button data-number>2</button>
+                <button data-number>3</button>
+                <button data-equals class="operator span-two-rows">=</button>
+                
+                <button data-negate class="sci-function">±</button>
+                <button data-constant="E" class="sci-function">e</button>
+                <button data-number class="span-two">0</button>
+                <button data-number>.</button>
+            </div>
+        </div>
+        
+        <div class="graphing-wrapper">
+             <div class="header">
+                <h1>Graphing</h1>
+            </div>
+            <div class="graph-container">
+                <canvas id="graphCanvas" width="400" height="400"></canvas>
+            </div>
+            <div class="graph-controls">
+                <span>y = </span>
+                <input type="text" id="functionInput" placeholder="e.g., sin(x) or x^2">
+                <button id="plotButton">Plot</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
